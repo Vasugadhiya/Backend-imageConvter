@@ -31,6 +31,8 @@ const convertHtmlToImage = async (html, format) => {
   return imageBuffer;
 }
 
+
+// File Conveter API
 const convertFile = async (req, res, storagePath) => {
   try {
     let toFormat = req.body.to;
@@ -214,7 +216,7 @@ const convertFile = async (req, res, storagePath) => {
   }
 };
 
-
+// View File
 async function viewConversionFile(req, res) {
   try {
       const finddata = await convertModel.find({})
@@ -225,4 +227,31 @@ async function viewConversionFile(req, res) {
   }
 }
 
-module.exports = { convertFile , viewConversionFile };
+// Add To Start File
+const addToStarFile = async (req, res) => {
+  try {
+      const findFile = await convertModel.findOne({ _id: req.body.id });
+      console.log("🚀 ~ addToStarFile ~ req.body.id:", req.body.id)
+
+      if (!findFile) {
+          return res.status(400).json({ status: false, code: 400, msg: 'Folder Not Found' });
+      }
+
+      if (findFile.favourites == false) {
+          findFile.favourites = true;
+          await findFile.save();
+          return res.status(200).json({ status: true, code: 200, msg: "File Add To Favourite List", data: findFile });
+      }
+
+      if (findFile.favourites == true) {
+          findFile.favourites = false;
+          await findFile.save();
+          return res.status(200).json({ status: true, code: 200, msg: "File Remove To Favourite List", data: findFile });
+      }
+  } catch (error) {
+      console.log("🚀 ~ file: userController.js:235 ~ blockAccount ~ error:", error)
+      return res.status(500).json({ status: false, code: 500, msg: "Something Went Wrong", error: error.message });
+  }
+};
+
+module.exports = { convertFile , viewConversionFile , addToStarFile };
