@@ -31,4 +31,7 @@ router.post('/convert', upload, (req, res) => {
   convert.convertFile(req, res, storagePath);
 });
 
+router.get('/viewFile', convert.viewConversionFile)
+
+
 module.exports = router;

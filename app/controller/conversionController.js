@@ -12,6 +12,8 @@ const PptxGenJS = require('pptxgenjs');
 const imageJs = require('image-js');
 const { exec } = require('child_process');
 const convertModel = require('../model/conversionFile')
+const HTTP = require('../../constants/responseCode.constant')
+
 
 const convertHtmlToPdf = async (html) => {
   let file = { content: html };
@@ -204,7 +206,7 @@ const convertFile = async (req, res, storagePath) => {
     });
 
     await conversion.save();
-    
+
     return res.status(200).send({ message: 'Conversion successful', downloadLink: downloadLink });
   } catch (err) {
     console.error('Error during conversion:', err);
@@ -212,4 +214,15 @@ const convertFile = async (req, res, storagePath) => {
   }
 };
 
-module.exports = { convertFile };
+
+async function viewConversionFile(req, res) {
+  try {
+      const finddata = await convertModel.find({})
+      return res.status(HTTP.SUCCESS).send({ 'status': true, CODE: HTTP.SUCCESS, 'message': "File data show successfully .", finddata })
+  } catch (error) {
+      console.log(error.message)
+      return res.status(HTTP.SUCCESS).send({ "success": false, 'code': HTTP.INTERNAL_SERVER_ERROR, "message": "Something went wrong!", data: {} })
+  }
+}
+
+module.exports = { convertFile , viewConversionFile };
