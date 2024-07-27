@@ -11,6 +11,7 @@ const { Document, Packer, Paragraph, ImageRun } = require('docx');
 const PptxGenJS = require('pptxgenjs');
 const imageJs = require('image-js');
 const { exec } = require('child_process');
+const convertModel = require('../model/conversionFile')
 
 const convertHtmlToPdf = async (html) => {
   let file = { content: html };
@@ -42,7 +43,7 @@ const convertFile = async (req, res, storagePath) => {
     const downloadLink = `${req.protocol}://${req.get('host')}/download/${outputFilename}`;
 
     console.log("🚀 ~ convertFile ~ downloadLink:", downloadLink)
-    
+
     if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       if (toFormat === 'html') {
         const result = await mammoth.convertToHtml({ path: inputPath });
@@ -195,6 +196,15 @@ const convertFile = async (req, res, storagePath) => {
       });
     }, 1000);
 
+    // Save conversion details to the database
+    const conversion = new convertModel({
+      originalFilename: req.file.originalname,
+      outputFilename: outputFilename,
+      toFormat: toFormat,
+    });
+
+    await conversion.save();
+    
     return res.status(200).send({ message: 'Conversion successful', downloadLink: downloadLink });
   } catch (err) {
     console.error('Error during conversion:', err);
