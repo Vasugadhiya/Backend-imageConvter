@@ -8,7 +8,12 @@ const app = express();
 const port = 5000;
 
 app.use(cors());
-app.use('/download', express.static(process.env.STORAGE_PATH || './upload'));
+
+const storagePath = path.join(__dirname, 'storage'); // Update this path to your storage directory
+app.use('/download', express.static(storagePath));
+
+
+// app.use('/download', express.static(process.env.STORAGE_PATH || './upload'));
 app.use('/api', conversionRouter); // Use the router with a base path
 
 app.listen(port, () => {
