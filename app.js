@@ -8,7 +8,12 @@ const app = express();
 const port = 5000;
 
 app.use(cors());
-app.use('/download', express.static(process.env.STORAGE_PATH || './upload'));
+
+
+// app.use("/uploads", express.static("uploads"))
+// app.use("/img", express.static("img"))
+
+app.use('/download', express.static(process.env.STORAGE_PATH || '/tmp'));
 app.use('/api', conversionRouter); // Use the router with a base path
 
 app.listen(port, () => {

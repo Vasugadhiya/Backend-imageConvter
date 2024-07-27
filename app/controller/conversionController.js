@@ -41,6 +41,8 @@ const convertFile = async (req, res, storagePath) => {
     const outputPath = path.join(storagePath, outputFilename);
     const downloadLink = `${req.protocol}://${req.get('host')}/download/${outputFilename}`;
 
+    console.log("🚀 ~ convertFile ~ downloadLink:", downloadLink)
+    
     if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       if (toFormat === 'html') {
         const result = await mammoth.convertToHtml({ path: inputPath });
