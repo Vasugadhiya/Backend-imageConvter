@@ -29,11 +29,10 @@ const upload = multer({ storage: storage }).single('image');
 
 router.post('/convert', upload, (req, res) => {convert.convertFile(req, res, storagePath);});
 
+router.post('/convertDocToImg', upload, (req, res) => {convert.convertDocToImg(req, res, storagePath);});
+
 router.get('/viewFile', convert.viewConversionFile)
 
 router.post('/addToStarFile', convert.addToStarFile)
-
-
-
 
 module.exports = router;

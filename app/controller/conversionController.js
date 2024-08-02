@@ -254,4 +254,56 @@ const addToStarFile = async (req, res) => {
   }
 };
 
-module.exports = { convertFile , viewConversionFile , addToStarFile };
+
+const convertDocToImg = async (req, res, storagePath) => {
+  console.log("-------------------- convertDocToImg ---------------------------")
+  try {
+    let toFormat = req.body.to 
+    console.log("🚀 ~ convertDocToImg ~ toFormat:", toFormat)
+
+    if (!req.file) {
+      return res.status(400).send({ error: 'No file uploaded' });
+    }
+
+    const inputPath = path.join(storagePath, req.file.filename);
+    const outputFilename = `${req.file.originalname.split('.')[0]}-${Date.now()}.${toFormat}`;
+    const outputPath = path.join(storagePath, outputFilename);
+    const downloadLink = `${req.protocol}://${req.get('host')}/download/${outputFilename}`;
+
+    console.log("🚀 ~ convertDocToImage ~ downloadLink:", downloadLink);
+
+    if (req.file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const result = await mammoth.convertToHtml({ path: inputPath });
+      const htmlContent = result.value;
+
+      // Convert HTML to Image using sharp
+      const imageBuffer = await sharp(Buffer.from(htmlContent))
+        .toFormat(toFormat)
+        .toBuffer();
+
+      fs.writeFileSync(outputPath, imageBuffer);
+    } else {
+      return res.status(400).send({ error: 'Unsupported file type' });
+    }
+
+    // Cleanup original file
+    setTimeout(() => {
+      fs.remove(inputPath, (err) => {
+        if (err) {
+          console.error('Error deleting original file:', err);
+        } else {
+          console.log('Original file deleted successfully');
+        }
+      });
+    }, 1000);
+
+    // Return the download link for the converted file
+    return res.status(200).send({ message: 'Conversion successful', downloadLink: downloadLink });
+  } catch (err) {
+    console.error('Error during conversion:', err);
+    res.status(500).send({ error: 'Conversion failed' });
+  }
+};
+
+
+module.exports = { convertFile , viewConversionFile , addToStarFile, convertDocToImg };
