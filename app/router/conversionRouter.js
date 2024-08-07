@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 });
 
 
-const upload = multer({ storage: storage }).single('image');
+const upload = multer({ storage: storage }).array('image');
 
 router.post('/convert', upload, (req, res) => {convert.convertFile(req, res, storagePath);});
 
